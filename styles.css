@@ -1,0 +1,157 @@
+/* Strategic Document Management — Dashboard View */
+/* Extends UTD Manager's .utd-* naming convention */
+
+.utd-sd-view {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.utd-sd-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.utd-sd-tab-btn {
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.utd-sd-tab-btn.is-active {
+  background: var(--interactive-accent);
+  border-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.utd-sd-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.utd-sd-section {
+  display: block;
+}
+
+.utd-sd-section.is-hidden {
+  display: none;
+}
+
+.utd-sd-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  background: var(--background-secondary);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.utd-sd-summary div {
+  white-space: nowrap;
+}
+
+.utd-sd-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px;
+  gap: 6px 10px;
+  margin-bottom: 12px;
+}
+
+.utd-sd-grid-item {
+  display: contents;
+}
+
+.utd-sd-grid-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.utd-sd-grid-value {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.utd-sd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.utd-sd-list-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.utd-sd-list-item:hover {
+  background: var(--background-secondary);
+  border-color: var(--background-modifier-border);
+}
+
+.utd-sd-list-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.utd-sd-list-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.utd-sd-list-sublabel {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.utd-sd-badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.utd-sd-badge-good {
+  background: var(--color-green);
+  color: var(--text-on-accent);
+}
+
+.utd-sd-badge-warn {
+  background: var(--color-orange);
+  color: var(--text-on-accent);
+}
+
+.utd-sd-badge-bad {
+  background: var(--color-red);
+  color: var(--text-on-accent);
+}
+
+.utd-sd-badge-neutral {
+  background: var(--background-modifier-border);
+  color: var(--text-muted);
+}
+
+.utd-sd-placeholder {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px 0;
+  text-align: center;
+}

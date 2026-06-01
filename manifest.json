@@ -1,0 +1,10 @@
+{
+  "id": "obsidian-strategic-document-management",
+  "name": "Strategic Document Management",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Document lifecycle tracking, quality scoring, review queues, and dependency impact analysis — layered on UTD Manager's identity and metadata API.",
+  "author": "DP + MAS",
+  "authorUrl": "https://example.com",
+  "isDesktopOnly": false
+}
