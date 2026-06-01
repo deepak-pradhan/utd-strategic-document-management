@@ -7,6 +7,15 @@ export interface DashboardRow {
   badge: string;
   badgeClass: string;
   onClick: () => void;
+  canvasScore?: number | null;
+  synced?: boolean | null;
+  qualityDetail?: string;
+}
+
+export interface CanvasAuthStatus {
+  authenticated: boolean;
+  lastSyncAt?: number | null;
+  lastSyncResult?: string | null;
 }
 
 export interface DashboardData {
@@ -33,6 +42,7 @@ export interface DashboardData {
     cycleCount: number;
     rows: DashboardRow[];
   };
+  canvasAuth?: CanvasAuthStatus;
 }
 
 export type DashboardUpdater = (container: HTMLElement, data: DashboardData) => void;
@@ -70,6 +80,13 @@ function renderLifecycleTab(section: HTMLElement, data: DashboardData): void {
 
   const summary = section.createDiv({ cls: "utd-sd-summary" });
   summary.createEl("div", { text: `Total documents: ${total}` });
+
+  if (data.canvasAuth) {
+    const authLabel = data.canvasAuth.authenticated
+      ? "Canvas\u2192Claude: Connected"
+      : "Canvas\u2192Claude: Not connected";
+    summary.createEl("div", { text: authLabel, cls: data.canvasAuth.authenticated ? "utd-sd-canvas-connected" : "utd-sd-canvas-disconnected" });
+  }
 
   const states = ["draft", "under_review", "approved", "operational", "archived"];
   const grid = section.createDiv({ cls: "utd-sd-grid" });
@@ -127,13 +144,36 @@ function renderQualityTab(section: HTMLElement, data: DashboardData): void {
     return;
   }
 
+  const hasCanvasScores = quality.rows.some((r) => r.canvasScore != null);
+
   const list = section.createDiv({ cls: "utd-sd-list" });
   for (const row of quality.rows) {
     const item = list.createDiv({ cls: "utd-sd-list-item" });
     const info = item.createDiv({ cls: "utd-sd-list-info" });
     info.createSpan({ text: row.label, cls: "utd-sd-list-label" });
     info.createSpan({ text: row.sublabel, cls: "utd-sd-list-sublabel" });
-    item.createDiv({ text: row.badge, cls: `utd-sd-badge ${row.badgeClass}` });
+
+    const badgeRow = item.createDiv({ cls: "utd-sd-badge-row" });
+    badgeRow.createDiv({ text: row.badge, cls: `utd-sd-badge ${row.badgeClass}` });
+
+    if (hasCanvasScores) {
+      if (row.canvasScore != null) {
+        const csLabel = `Canvas: ${Math.round(row.canvasScore)}%`;
+        badgeRow.createDiv({ text: csLabel, cls: "utd-sd-badge utd-sd-badge-canvas" });
+      } else {
+        badgeRow.createDiv({ text: "Canvas: –", cls: "utd-sd-badge utd-sd-badge-neutral" });
+      }
+    }
+
+    if (row.synced != null) {
+      const syncLabel = row.synced ? "Synced" : "Not synced";
+      badgeRow.createDiv({ text: syncLabel, cls: `utd-sd-badge ${row.synced ? "utd-sd-badge-good" : "utd-sd-badge-neutral"}` });
+    }
+
+    if (row.qualityDetail) {
+      info.createSpan({ text: row.qualityDetail, cls: "utd-sd-quality-detail" });
+    }
+
     item.addEventListener("click", row.onClick);
   }
 }
