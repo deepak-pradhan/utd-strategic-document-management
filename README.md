@@ -58,6 +58,45 @@ Strategic Document Management (workflows + quality + UX)
     └── Dashboard views (by state, owner, domain, risk)
 ```
 
+## Export: Governance Report
+
+Export a consolidated **Governance Report** — lifecycle breakdown, quality scores, review queue, and dependency cycles/orphans — in four formats, from the Obsidian dashboard or a headless CLI.
+
+| Format | Use case |
+|---|---|
+| **JSON** | Programmatic use, CI gates |
+| **Markdown** | Team channels, repos, human review |
+| **HTML** | Self-contained shareable scorecard (no JS, inline CSS) |
+| **MDX** | Docs sites (Docusaurus/Astro) — includes `export const governanceData` |
+
+### In Obsidian
+
+Open the Strategic Document Dashboard and use the **Export JSON / Markdown / HTML / MDX** buttons, or run the commands "Export Governance Report as JSON/Markdown/HTML/MDX". The report is written into the vault and opened.
+
+### CLI (`utd-sdm`)
+
+No Obsidian runtime needed — reads the vault's `.md` frontmatter directly via gray-matter.
+
+```bash
+npm run build:cli                    # builds dist/cli.js
+
+node dist/cli.js <vault-path> [options]
+  --format json|markdown|html|mdx    Output format (default: json)
+  --output <path>                    Write to a file instead of stdout
+  --html                             Shorthand for --format html
+  --min-score <n>                    Quality gate threshold (default: 60)
+  --ci                               Exit 1 if any gate trips (see below)
+  --verbose                          Progress to stderr
+```
+
+**`--ci` gate (all-on):** exits non-zero if **any** of these hold — used to enforce governance in CI:
+1. any dependency cycle
+2. any overdue review
+3. any document with a quality score below `--min-score`
+4. any orphan (document with no relations)
+
+> Relations are read from frontmatter — both top-level (`depends_on:`) and nested under a `relations:` key (the layout UTD-tagged vault documents use). Quality and staleness are computed against the real clock at run time.
+
 ## See also
 
 - [UTD Manager](https://github.com/deepak-pradhan/utd) — identity and metadata foundation

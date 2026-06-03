@@ -15,11 +15,19 @@ Modules build from bottom to top. Read them in this order:
 3. `src/quality-score.ts` — 0–100 composite across 4 dimensions (depends on document-types for completeness)
 4. `src/review-queue.ts` — prioritized review queue with staleness detection (depends on quality-score for freshness computation)
 5. `src/dependency-analyzer.ts` — impact analysis, cycle detection, orphan detection (no internal deps; consumes relation graph data)
-6. `src/views/dashboard-renderer.ts` — pure rendering functions (data-in, DOM-out); no Obsidian runtime dep
-7. `src/views/StrategicDocumentView.ts` — Obsidian ItemView that consumes UTD API and delegates to renderer
+6. `src/report.ts` — `SdmDocument`/`ScannerLike` contract, `GovernanceReport` types, `buildGovernanceReport` (composes the engines above), `reportToJSON`/`reportToMarkdown`. Pure, Obsidian-free.
+7. `src/report-html.ts` / `src/report-mdx.ts` — pure serializers (self-contained HTML; MDX with `export const governanceData`)
+8. `src/filesystem-scanner.ts` — `FileSystemScanner` (gray-matter) for the CLI; reads relations from top-level or nested `relations:` frontmatter; surfaces unreadable dirs as errors
+9. `src/obsidian-scanner.ts` — `ObsidianScanner` wrapping the UTD `metadataService` (live API); same `ScannerLike` contract
+10. `src/cli.ts` — `utd-sdm` CLI: scan → build → serialize → stdout/file, with all-on `--ci` gates (cycles / overdue / quality `< --min-score` / orphans)
+11. `src/views/dashboard-renderer.ts` — pure rendering functions (data-in, DOM-out); no Obsidian runtime dep
+12. `src/views/StrategicDocumentView.ts` — Obsidian ItemView: dashboard + governance-report export buttons (delegates to renderer; uses `ObsidianScanner` for export)
+13. `src/main.ts` — plugin entry: registers the dashboard view + four export commands
+
+Report builder/serializers and both scanners are Obsidian-free and share the `ScannerLike` contract, so `buildGovernanceReport` is source-agnostic (CLI filesystem scan vs. live API).
 
 ## Toolchain
-- `npm install` / `npm run dev` / `npm run build` / `npm test` / `npm run lint`
+- `npm install` / `npm run dev` / `npm run build` / `npm run build:cli` / `npm test` / `npm run lint`
 - `obsidian` externalized at build time (never bundled)
 - Plugins registered in Obsidian's `main.ts` (mirroring UTD Manager's structure)
 
