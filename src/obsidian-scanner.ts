@@ -1,4 +1,4 @@
-import type { SdmDocument, ScannerLike } from "./report";
+import { toStringArray, type SdmDocument, type ScannerLike } from "./report";
 
 interface DocumentEntry {
   thing_id: string;
@@ -12,15 +12,13 @@ export interface UTDMetadataService {
   getAllThingIds(): Set<string>;
 }
 
-function toStringArray(v: unknown): string[] {
-  return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
-}
-
 export class ObsidianScanner implements ScannerLike {
   constructor(private readonly api: UTDMetadataService) {}
 
   scan(): { documents: SdmDocument[]; errors: string[] } {
-    const entries = this.api.listThings({ thing_type: "strategic_documentation" });
+    // Mirror the dashboard's filter (is_active: true) so the exported report's
+    // document set matches what the live dashboard shows.
+    const entries = this.api.listThings({ thing_type: "strategic_documentation", is_active: true });
     const documents: SdmDocument[] = entries.map((e) => {
       const r = this.api.getRelations(e.thing_id) ?? {};
       return {

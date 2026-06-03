@@ -20,4 +20,12 @@ describe("reportToHTML", () => {
       [{ ...docs[0], frontmatter: { ...docs[0].frontmatter, title: "<x>" } }], { now: NOW, scanErrors: [] }
     ))).toContain("&lt;x&gt;");
   });
+  it("lists orphan ids, not just the count", () => {
+    const orphanHtml = reportToHTML(buildGovernanceReport(
+      [{ thing_id: "lonely", file_path: "l.md", frontmatter: {}, relations: { depends_on: [], enables: [], related_to: [] } }],
+      { now: NOW, scanErrors: [] },
+    ));
+    expect(orphanHtml).toContain("Orphans");
+    expect(orphanHtml).toContain("lonely");
+  });
 });

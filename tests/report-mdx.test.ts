@@ -18,4 +18,12 @@ describe("reportToMDX", () => {
     expect(m).not.toBeNull();
     expect(JSON.parse(m![1]).summary.total_documents).toBe(1);
   });
+  it("lists orphan ids, not just the count", () => {
+    const orphanMdx = reportToMDX(buildGovernanceReport(
+      [{ thing_id: "lonely", file_path: "l.md", frontmatter: {}, relations: { depends_on: [], enables: [], related_to: [] } }],
+      { now: NOW, scanErrors: [] },
+    ));
+    expect(orphanMdx).toContain("## Orphans");
+    expect(orphanMdx).toContain("lonely");
+  });
 });

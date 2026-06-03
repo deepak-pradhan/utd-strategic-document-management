@@ -48,6 +48,22 @@ export interface BuildOptions {
   scanErrors?: string[];
 }
 
+/**
+ * Coerce a frontmatter/relation value into a string array. Shared by both
+ * scanners so the CLI and Obsidian paths normalize relations identically: an
+ * array keeps its string members; a bare string becomes a single-element array.
+ */
+export function toStringArray(v: unknown): string[] {
+  if (Array.isArray(v)) return v.filter((x): x is string => typeof x === "string");
+  if (typeof v === "string") return [v];
+  return [];
+}
+
+/** Escape a value for a Markdown table cell (pipes and newlines break tables). */
+function escMdCell(s: string): string {
+  return s.replace(/\|/g, "\\|").replace(/\n/g, " ");
+}
+
 const QUALITY_HIGH = 80;
 const QUALITY_MEDIUM = 50;
 const STALENESS_TO_STATUS: Record<StalenessTier, ReviewStatus> = {
@@ -124,7 +140,7 @@ export function reportToMarkdown(report: GovernanceReport): string {
   for (const [state, count] of Object.entries(s.lifecycle.by_state)) lines.push(`- ${state}: ${count}`);
   lines.push(""); lines.push(`## Documents`);
   lines.push(`| ID | Type | State | Quality | Review |`); lines.push(`|---|---|---|---|---|`);
-  for (const d of report.documents) lines.push(`| ${d.thing_id} | ${d.document_type} | ${d.lifecycle_state} | ${d.quality_score} | ${d.review_status} |`);
+  for (const d of report.documents) lines.push(`| ${escMdCell(d.thing_id)} | ${escMdCell(d.document_type)} | ${escMdCell(d.lifecycle_state)} | ${d.quality_score} | ${escMdCell(d.review_status)} |`);
   if (report.cycles.length) { lines.push(""); lines.push(`## Dependency cycles`); for (const c of report.cycles) lines.push(`- ${c.join(" → ")}`); }
   if (report.orphans.length) { lines.push(""); lines.push(`## Orphans`); for (const o of report.orphans) lines.push(`- ${o}`); }
   if (report.scan_errors.length) { lines.push(""); lines.push(`## Scan errors`); for (const e of report.scan_errors) lines.push(`- ${e}`); }

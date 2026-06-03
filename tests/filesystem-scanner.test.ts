@@ -30,6 +30,26 @@ describe("FileSystemScanner", () => {
     }
   });
 
+  it("coerces a bare-string relation into a single-element array", () => {
+    const vault = tempVault({ "a.md": "---\nthing_id: a\ndepends_on: just-one\n---\n" });
+    try {
+      const { documents } = new FileSystemScanner().scan(vault);
+      expect(documents[0].relations.depends_on).toEqual(["just-one"]);
+    } finally {
+      fs.rmSync(vault, { recursive: true, force: true });
+    }
+  });
+
+  it("reads relations nested under a `relations:` key", () => {
+    const vault = tempVault({ "a.md": "---\nthing_id: a\nrelations:\n  depends_on:\n    - b\n---\n" });
+    try {
+      const { documents } = new FileSystemScanner().scan(vault);
+      expect(documents[0].relations.depends_on).toEqual(["b"]);
+    } finally {
+      fs.rmSync(vault, { recursive: true, force: true });
+    }
+  });
+
   it("surfaces unreadable directories as errors instead of failing silently", () => {
     const runningAsRoot = typeof process.getuid === "function" && process.getuid() === 0;
     if (runningAsRoot) return;

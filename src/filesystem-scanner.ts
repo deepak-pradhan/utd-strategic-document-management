@@ -1,13 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import matter from "gray-matter";
-import type { SdmDocument, ScannerLike } from "./report";
-
-function toStringArray(v: unknown): string[] {
-  if (Array.isArray(v)) return v.filter((x): x is string => typeof x === "string");
-  if (typeof v === "string") return [v];
-  return [];
-}
+import { toStringArray, type SdmDocument, type ScannerLike } from "./report";
 
 export class FileSystemScanner implements ScannerLike {
   constructor(private readonly vaultPath: string = "") {}

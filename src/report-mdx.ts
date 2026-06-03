@@ -27,5 +27,13 @@ export function reportToMDX(report: GovernanceReport): string {
   for (const d of report.documents) {
     lines.push(`| ${escCell(d.thing_id)} | ${escCell(d.document_type)} | ${escCell(d.lifecycle_state)} | ${d.quality_score} | ${escCell(d.review_status)} |`);
   }
+  if (report.cycles.length) {
+    lines.push(""); lines.push("## Dependency cycles"); lines.push("");
+    for (const c of report.cycles) lines.push(`- ${c.map(escCell).join(" → ")}`);
+  }
+  if (report.orphans.length) {
+    lines.push(""); lines.push("## Orphans"); lines.push("");
+    for (const o of report.orphans) lines.push(`- ${escCell(o)}`);
+  }
   return lines.join("\n") + "\n";
 }

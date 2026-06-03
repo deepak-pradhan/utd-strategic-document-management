@@ -24,7 +24,7 @@ export function parseArgs(argv: string[]): CliArgs {
     else if (a === "--output") out.output = args[++i];
     else if (a === "--html") out.format = "html";
     else if (a === "--ci") out.ci = true;
-    else if (a === "--min-score") out.minScore = Number(args[++i]);
+    else if (a === "--min-score") { const n = Number(args[++i]); if (Number.isFinite(n)) out.minScore = n; }
     else if (a === "--verbose") out.verbose = true;
     else if (!a.startsWith("--")) out.vaultPath = a;
   }

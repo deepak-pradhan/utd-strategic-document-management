@@ -19,6 +19,9 @@ export function reportToHTML(report: GovernanceReport): string {
   const cycles = report.cycles.length
     ? `<h2>Dependency cycles (${report.cycles.length})</h2><ul>${report.cycles.map((c) => `<li>${c.map(esc).join(" → ")}</li>`).join("")}</ul>`
     : "";
+  const orphans = report.orphans.length
+    ? `<h2>Orphans (${report.orphans.length})</h2><ul>${report.orphans.map((o) => `<li>${esc(o)}</li>`).join("")}</ul>`
+    : "";
   const errors = report.scan_errors.length
     ? `<h2>Scan errors</h2><ul>${report.scan_errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`
     : "";
@@ -48,6 +51,7 @@ export function reportToHTML(report: GovernanceReport): string {
 <table><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>State</th><th>Quality</th><th>Review</th></tr></thead>
 <tbody>${docRows}</tbody></table>
 ${cycles}
+${orphans}
 ${errors}
 </body></html>`;
 }
