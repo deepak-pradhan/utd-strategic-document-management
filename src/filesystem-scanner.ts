@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import matter from "gray-matter";
 import type { SdmDocument, ScannerLike } from "./report";
 
 function toStringArray(v: unknown): string[] {
@@ -17,7 +18,6 @@ export class FileSystemScanner implements ScannerLike {
     if (!fs.existsSync(vaultPath)) {
       return { documents, errors: [`Vault path does not exist: ${vaultPath}`] };
     }
-    const matter = require("gray-matter");
     for (const file of this.walk(vaultPath, ".md", errors)) {
       const rel = path.relative(vaultPath, file).replace(/\\/g, "/");
       try {
