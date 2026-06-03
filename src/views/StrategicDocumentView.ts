@@ -166,16 +166,16 @@ export class StrategicDocumentView extends ItemView {
   async exportReport(format: "json" | "markdown" | "html" | "mdx"): Promise<void> {
     const api = getMetadataService(this.app);
     if (!api) { new Notice("UTD Manager not available"); return; }
-    const { documents, errors } = new ObsidianScanner(api).scan();
-    const report = buildGovernanceReport(documents, { now: new Date().toISOString(), scanErrors: errors });
-    const text = format === "json" ? reportToJSON(report)
-      : format === "markdown" ? reportToMarkdown(report)
-      : format === "html" ? reportToHTML(report)
-      : reportToMDX(report);
-    const ext = format === "markdown" ? "md" : format;
-    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    const name = `governance-report-${stamp}.${ext}`;
     try {
+      const { documents, errors } = new ObsidianScanner(api).scan();
+      const report = buildGovernanceReport(documents, { now: new Date().toISOString(), scanErrors: errors });
+      const text = format === "json" ? reportToJSON(report)
+        : format === "markdown" ? reportToMarkdown(report)
+        : format === "html" ? reportToHTML(report)
+        : reportToMDX(report);
+      const ext = format === "markdown" ? "md" : format;
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      const name = `governance-report-${stamp}.${ext}`;
       const file = await this.app.vault.create(name, text);
       new Notice(`Exported ${name}`);
       await this.app.workspace.getLeaf(false).openFile(file);

@@ -26,25 +26,25 @@ export default class StrategicDocumentManagementPlugin extends Plugin {
     this.addCommand({
       id: "export-governance-report-json",
       name: "Export Governance Report as JSON",
-      callback: () => this.view?.exportReport("json"),
+      callback: () => void this.view?.exportReport("json"),
     });
 
     this.addCommand({
       id: "export-governance-report-markdown",
       name: "Export Governance Report as Markdown",
-      callback: () => this.view?.exportReport("markdown"),
+      callback: () => void this.view?.exportReport("markdown"),
     });
 
     this.addCommand({
       id: "export-governance-report-html",
       name: "Export Governance Report as HTML",
-      callback: () => this.view?.exportReport("html"),
+      callback: () => void this.view?.exportReport("html"),
     });
 
     this.addCommand({
       id: "export-governance-report-mdx",
       name: "Export Governance Report as MDX",
-      callback: () => this.view?.exportReport("mdx"),
+      callback: () => void this.view?.exportReport("mdx"),
     });
 
     this.app.workspace.onLayoutReady(() => {
