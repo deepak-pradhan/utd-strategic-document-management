@@ -1,8 +1,12 @@
-import { ItemView, WorkspaceLeaf, type App } from "obsidian";
+import { ItemView, Notice, WorkspaceLeaf, type App } from "obsidian";
 import { DashboardRenderer, DashboardData, DashboardRow, CanvasAuthStatus } from "./dashboard-renderer";
 import { QualityScorer, type RelationData } from "../quality-score";
 import { ReviewQueueBuilder, StalenessTier } from "../review-queue";
 import { DependencyAnalyzer, DependencyNode } from "../dependency-analyzer";
+import { ObsidianScanner } from "../obsidian-scanner";
+import { buildGovernanceReport, reportToJSON, reportToMarkdown } from "../report";
+import { reportToHTML } from "../report-html";
+import { reportToMDX } from "../report-mdx";
 
 export const STRATEGIC_DOCUMENT_VIEW_TYPE = "strategic-document-view";
 
@@ -106,10 +110,13 @@ export class StrategicDocumentView extends ItemView {
   }
 
   async refreshDashboard(): Promise<void> {
+    this.containerEl.empty();
+    this.renderExportHeader();
+    const content = this.containerEl.createDiv({ cls: "utd-sd-dashboard-content" });
+
     const api = getMetadataService(this.app);
     if (!api) {
-      this.containerEl.empty();
-      this.containerEl.createDiv({ text: "UTD Manager plugin not available.", cls: "utd-sd-placeholder" });
+      content.createDiv({ text: "UTD Manager plugin not available.", cls: "utd-sd-placeholder" });
       return;
     }
 
@@ -133,13 +140,47 @@ export class StrategicDocumentView extends ItemView {
       }
 
       const data = this.buildDashboardData(this.documents);
-      DashboardRenderer.render(this.containerEl, data, "lifecycle");
+      DashboardRenderer.render(content, data, "lifecycle");
     } catch (err) {
-      this.containerEl.empty();
-      this.containerEl.createDiv({
+      content.createDiv({
         text: `Failed to load dashboard: ${err instanceof Error ? err.message : String(err)}`,
         cls: "utd-sd-placeholder",
       });
+    }
+  }
+
+  private renderExportHeader(): void {
+    const header = this.containerEl.createDiv({ cls: "utd-sd-export-header" });
+    const formats: Array<{ label: string; format: "json" | "markdown" | "html" | "mdx" }> = [
+      { label: "Export JSON", format: "json" },
+      { label: "Export Markdown", format: "markdown" },
+      { label: "Export HTML", format: "html" },
+      { label: "Export MDX", format: "mdx" },
+    ];
+    for (const { label, format } of formats) {
+      const btn = header.createEl("button", { text: label, cls: "utd-sd-export-btn" });
+      btn.addEventListener("click", () => { void this.exportReport(format); });
+    }
+  }
+
+  async exportReport(format: "json" | "markdown" | "html" | "mdx"): Promise<void> {
+    const api = getMetadataService(this.app);
+    if (!api) { new Notice("UTD Manager not available"); return; }
+    const { documents, errors } = new ObsidianScanner(api).scan();
+    const report = buildGovernanceReport(documents, { now: new Date().toISOString(), scanErrors: errors });
+    const text = format === "json" ? reportToJSON(report)
+      : format === "markdown" ? reportToMarkdown(report)
+      : format === "html" ? reportToHTML(report)
+      : reportToMDX(report);
+    const ext = format === "markdown" ? "md" : format;
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const name = `governance-report-${stamp}.${ext}`;
+    try {
+      const file = await this.app.vault.create(name, text);
+      new Notice(`Exported ${name}`);
+      await this.app.workspace.getLeaf(false).openFile(file);
+    } catch (err) {
+      new Notice(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
