@@ -1,4 +1,4 @@
-import { QualityScorer, type RelationData } from "./quality-score";
+import type { RelationData } from "./quality-score";
 import { ReviewQueueBuilder, StalenessTier } from "./review-queue";
 import { DependencyAnalyzer, type DependencyNode } from "./dependency-analyzer";
 import { DocumentClassifier } from "./document-types";
