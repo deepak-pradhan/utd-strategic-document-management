@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "esbuild src/main.ts --bundle --outfile=main.js --format=cjs --platform=node --external:obsidian --watch",
     "build": "esbuild src/main.ts --bundle --minify --sourcemap --outfile=main.js --format=cjs --platform=node --external:obsidian",
+    "build:cli": "esbuild src/cli.ts --bundle --outfile=dist/cli.js --format=cjs --platform=node --external:obsidian --banner:js='#!/usr/bin/env node'",
     "lint": "eslint src/ --ext .ts",
     "lint:fix": "eslint src/ --ext .ts --fix",
     "test": "vitest run"
@@ -19,5 +20,11 @@
     "jsdom": "^27.0.1",
     "typescript": "^5.6.3",
     "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  },
+  "bin": {
+    "utd-sdm": "./dist/cli.js"
   }
 }
