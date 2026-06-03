@@ -22,14 +22,20 @@ export class FileSystemScanner implements ScannerLike {
       const rel = path.relative(vaultPath, file).replace(/\\/g, "/");
       try {
         const fm = (matter(fs.readFileSync(file, "utf-8")).data || {}) as Record<string, unknown>;
+        // Support both top-level relations (depends_on:, enables:, related_to:) and
+        // nested under a `relations:` key (as used by UTD-tagged vault documents).
+        const nested = fm["relations"] && typeof fm["relations"] === "object" && !Array.isArray(fm["relations"])
+          ? (fm["relations"] as Record<string, unknown>)
+          : null;
+        const relSrc = nested ?? fm;
         documents.push({
           thing_id: typeof fm["thing_id"] === "string" ? (fm["thing_id"] as string) : `__missing_${documents.length}`,
           file_path: rel,
           frontmatter: fm,
           relations: {
-            depends_on: toStringArray(fm["depends_on"]),
-            enables: toStringArray(fm["enables"]),
-            related_to: toStringArray(fm["related_to"]),
+            depends_on: toStringArray(relSrc["depends_on"]),
+            enables: toStringArray(relSrc["enables"]),
+            related_to: toStringArray(relSrc["related_to"]),
           },
         });
       } catch (err) {
