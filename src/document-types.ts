@@ -147,7 +147,7 @@ function getHeuristicScores(frontmatter: Record<string, unknown>): HeuristicScor
   return scores;
 }
 
-function isDocumentType(value: string): value is DocumentType {
+export function isDocumentType(value: string): value is DocumentType {
   return Object.values(DocumentType).includes(value as DocumentType);
 }
 

@@ -1,4 +1,4 @@
-import { DocumentClassifier } from "./document-types";
+import { DocumentClassifier, isDocumentType } from "./document-types";
 
 export enum LifecycleState {
   Draft = "draft",
@@ -47,7 +47,7 @@ function validateTransition(
   from: LifecycleState,
   to: LifecycleState,
   frontmatter: Record<string, unknown>,
-  metadata?: { hasReviewer?: boolean; hasParentLink?: boolean; supersededBy?: string; expired?: boolean }
+  metadata?: { hasReviewer?: boolean; hasParentLink?: boolean; supersededBy?: string; expired?: boolean; reason?: string }
 ): TransitionResult {
   if (!canTransition(from, to)) {
     return {
@@ -77,13 +77,13 @@ function runGuards(
   from: LifecycleState,
   to: LifecycleState,
   frontmatter: Record<string, unknown>,
-  metadata?: { hasReviewer?: boolean; hasParentLink?: boolean; supersededBy?: string; expired?: boolean }
+  metadata?: { hasReviewer?: boolean; hasParentLink?: boolean; supersededBy?: string; expired?: boolean; reason?: string }
 ): GuardResult[] {
   const results: GuardResult[] = [];
 
   if (from === LifecycleState.Draft && to === LifecycleState.UnderReview) {
     const docType = frontmatter["doc_type"];
-    if (typeof docType === "string") {
+    if (typeof docType === "string" && isDocumentType(docType)) {
       const validation = DocumentClassifier.validateRequiredFields(docType, frontmatter);
       results.push({
         passed: validation.valid,
@@ -96,7 +96,7 @@ function runGuards(
       results.push({
         passed: false,
         guard: "required_fields",
-        detail: "Cannot validate: no doc_type in frontmatter",
+        detail: "Cannot validate: missing or unknown doc_type",
       });
     }
   }

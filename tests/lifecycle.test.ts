@@ -77,7 +77,7 @@ describe("LifecycleStateMachine.validateTransition", () => {
       LifecycleState.Draft, LifecycleState.UnderReview, { owner: "alice" }
     );
     expect(result.allowed).toBe(false);
-    expect(result.guardResults[0].detail).toContain("no doc_type");
+    expect(result.guardResults[0].detail).toContain("missing or unknown doc_type");
   });
 
   it("passes under_review -> approved when reviewed_by present", () => {

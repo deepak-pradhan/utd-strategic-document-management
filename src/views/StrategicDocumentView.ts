@@ -56,14 +56,13 @@ function getFileForThingId(app: App, thingId: string): unknown | null {
 }
 
 export class StrategicDocumentView extends ItemView {
-  private app: App;
   private documents: DocumentEntry[] = [];
   private canvasIntelCache: Map<string, CanvasIntelligencePayload | null> = new Map();
   private statusUnsubscribe?: () => void;
 
-  constructor(leaf: WorkspaceLeaf, app: App) {
+  constructor(leaf: WorkspaceLeaf) {
+    // `this.app` is provided by the ItemView base class.
     super(leaf);
-    this.app = app;
   }
 
   getViewType(): string {
