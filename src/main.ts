@@ -9,7 +9,7 @@ export default class StrategicDocumentManagementPlugin extends Plugin {
     this.registerView(
       STRATEGIC_DOCUMENT_VIEW_TYPE,
       (leaf: WorkspaceLeaf) => {
-        this.view = new StrategicDocumentView(leaf, this.app);
+        this.view = new StrategicDocumentView(leaf);
         return this.view;
       }
     );

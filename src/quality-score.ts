@@ -1,4 +1,4 @@
-import { DocumentClassifier } from "./document-types";
+import { DocumentClassifier, isDocumentType } from "./document-types";
 
 export interface QualityScore {
   total: number;
@@ -49,7 +49,16 @@ function scoreCompleteness(frontmatter: Record<string, unknown>): DimensionScore
     };
   }
 
-  try {
+  if (!isDocumentType(docType)) {
+    return {
+      score: 0,
+      weight: 0.4,
+      weighted: 0,
+      detail: "Unknown document type",
+    };
+  }
+
+  {
     const validation = DocumentClassifier.validateRequiredFields(docType, frontmatter);
     const required = DocumentClassifier.getRequiredFields(docType);
     const present = required.length - validation.missing.length;
@@ -62,13 +71,6 @@ function scoreCompleteness(frontmatter: Record<string, unknown>): DimensionScore
       detail: validation.valid
         ? `All ${required.length} required fields present`
         : `Missing ${validation.missing.length}/${required.length} fields: ${validation.missing.join(", ")}`,
-    };
-  } catch {
-    return {
-      score: 0,
-      weight: 0.4,
-      weighted: 0,
-      detail: "Unknown document type",
     };
   }
 }
