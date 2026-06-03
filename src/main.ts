@@ -1,5 +1,6 @@
 import { Plugin, WorkspaceLeaf } from "obsidian";
 import { StrategicDocumentView, STRATEGIC_DOCUMENT_VIEW_TYPE } from "./views/StrategicDocumentView";
+import type { UTDMetadataService } from "./obsidian-scanner";
 
 export default class StrategicDocumentManagementPlugin extends Plugin {
   private view: StrategicDocumentView | null = null;
@@ -76,8 +77,10 @@ export default class StrategicDocumentManagementPlugin extends Plugin {
     if (leaf) workspace.revealLeaf(leaf);
   }
 
-  private getMetadataService(): any {
-    return (this.app as any).plugins?.plugins?.["obsidian-utd"]?.metadataService;
+  private getMetadataService(): UTDMetadataService | null {
+    // App.plugins is an internal Obsidian API not present in the public typings.
+    const plugins = (this.app as unknown as { plugins?: { plugins?: Record<string, { metadataService?: UTDMetadataService }> } }).plugins;
+    return plugins?.plugins?.["obsidian-utd"]?.metadataService ?? null;
   }
 }
 

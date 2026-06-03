@@ -3,25 +3,12 @@ import { DashboardRenderer, DashboardData, DashboardRow, CanvasAuthStatus } from
 import { QualityScorer, type RelationData } from "../quality-score";
 import { ReviewQueueBuilder, StalenessTier } from "../review-queue";
 import { DependencyAnalyzer, DependencyNode } from "../dependency-analyzer";
-import { ObsidianScanner } from "../obsidian-scanner";
+import { ObsidianScanner, type UTDMetadataService, type DocumentEntry } from "../obsidian-scanner";
 import { buildGovernanceReport, reportToJSON, reportToMarkdown } from "../report";
 import { reportToHTML } from "../report-html";
 import { reportToMDX } from "../report-mdx";
 
 export const STRATEGIC_DOCUMENT_VIEW_TYPE = "strategic-document-view";
-
-interface DocumentEntry {
-  thing_id: string;
-  file_path: string;
-  frontmatter: Record<string, unknown>;
-}
-
-interface UTDMetadataService {
-  listThings(filter: Record<string, unknown>): DocumentEntry[];
-  getRelations(thingId: string): { depends_on?: string[]; enables?: string[]; related_to?: string[] } | null;
-  getAllThingIds(): Set<string>;
-  onDidUpdate(callback: (thingId: string) => void): { dispose(): void };
-}
 
 interface CanvasIntelligencePayload {
   canvasName: string | null;
@@ -64,7 +51,7 @@ function getCanvasClaudeService(app: App): CanvasClaudeService | null {
 function getFileForThingId(app: App, thingId: string): unknown | null {
   const api = getMetadataService(app);
   if (!api) return null;
-  const result = (api as any).getThingFile?.(thingId);
+  const result = api.getThingFile?.(thingId);
   return result ?? null;
 }
 
