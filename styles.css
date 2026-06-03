@@ -155,3 +155,37 @@
   padding: 12px 0;
   text-align: center;
 }
+
+.utd-sd-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.utd-sd-badge-canvas {
+  background: var(--color-cyan);
+  color: var(--text-on-accent);
+}
+
+.utd-sd-canvas-connected {
+  color: var(--color-green);
+  font-weight: 600;
+}
+
+.utd-sd-canvas-disconnected {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.utd-sd-quality-detail {
+  display: block;
+  font-size: 10px;
+  color: var(--text-faint);
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
