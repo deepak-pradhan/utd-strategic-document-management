@@ -1,15 +1,20 @@
 import { toStringArray, type SdmDocument, type ScannerLike } from "./report";
 
-interface DocumentEntry {
+export interface DocumentEntry {
   thing_id: string;
   file_path: string;
   frontmatter: Record<string, unknown>;
 }
 
+/** The UTD Manager metadata API surface this plugin consumes. Single source of
+ *  truth — imported by the dashboard view and the plugin entry. */
 export interface UTDMetadataService {
   listThings(filter: Record<string, unknown>): DocumentEntry[];
   getRelations(thingId: string): { depends_on?: string[]; enables?: string[]; related_to?: string[] } | null;
   getAllThingIds(): Set<string>;
+  onDidUpdate(callback: (thingId: string) => void): { dispose(): void };
+  /** Optional: not provided by every UTD Manager version. */
+  getThingFile?(thingId: string): unknown;
 }
 
 export class ObsidianScanner implements ScannerLike {
