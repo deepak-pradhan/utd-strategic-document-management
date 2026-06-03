@@ -9,6 +9,11 @@ export interface SdmDocument {
   frontmatter: Record<string, unknown>;
   relations: { depends_on: string[]; enables: string[]; related_to: string[] };
 }
+/**
+ * Source-agnostic contract for producing documents to report on. Implemented by
+ * `FileSystemScanner` (CLI, gray-matter) and `ObsidianScanner` (live API), so
+ * `buildGovernanceReport` never depends on where documents come from.
+ */
 export interface ScannerLike {
   scan(): { documents: SdmDocument[]; errors: string[] };
 }
@@ -30,7 +35,18 @@ export interface GovernanceReport {
   };
   documents: GovernanceDocument[]; cycles: string[][]; orphans: string[]; scan_errors: string[];
 }
-export interface BuildOptions { now: string; vaultPath?: string; durationMs?: number; scanErrors?: string[] }
+export interface BuildOptions {
+  /**
+   * ISO timestamp stamped onto the report `id` and `timestamp` (injected so those
+   * fields are deterministic in tests). Note: quality and staleness are computed by
+   * the underlying engines against the real wall clock — correct for a live report,
+   * and intentionally not driven by `now`.
+   */
+  now: string;
+  vaultPath?: string;
+  durationMs?: number;
+  scanErrors?: string[];
+}
 
 const QUALITY_HIGH = 80;
 const QUALITY_MEDIUM = 50;
@@ -50,6 +66,8 @@ export function buildGovernanceReport(docs: SdmDocument[], options: BuildOptions
     thingId: d.thing_id, frontmatter: d.frontmatter,
     relationData: { dependsOn: d.relations.depends_on, enables: d.relations.enables, relatedTo: d.relations.related_to, knownThingIds } as RelationData,
   }));
+  // maxDocuments = docs.length so the queue includes every document (its default truncates
+  // to 100). This keeps the quality buckets below in sync with summary.total_documents.
   const queue = ReviewQueueBuilder.build(queueInputs, { maxDocuments: Math.max(docs.length, 1) });
   const depNodes: DependencyNode[] = docs.map((d) => ({
     thingId: d.thing_id, dependsOn: d.relations.depends_on, enables: d.relations.enables, relatedTo: d.relations.related_to,
@@ -108,6 +126,7 @@ export function reportToMarkdown(report: GovernanceReport): string {
   lines.push(`| ID | Type | State | Quality | Review |`); lines.push(`|---|---|---|---|---|`);
   for (const d of report.documents) lines.push(`| ${d.thing_id} | ${d.document_type} | ${d.lifecycle_state} | ${d.quality_score} | ${d.review_status} |`);
   if (report.cycles.length) { lines.push(""); lines.push(`## Dependency cycles`); for (const c of report.cycles) lines.push(`- ${c.join(" → ")}`); }
+  if (report.orphans.length) { lines.push(""); lines.push(`## Orphans`); for (const o of report.orphans) lines.push(`- ${o}`); }
   if (report.scan_errors.length) { lines.push(""); lines.push(`## Scan errors`); for (const e of report.scan_errors) lines.push(`- ${e}`); }
   return lines.join("\n") + "\n";
 }

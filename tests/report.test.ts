@@ -59,4 +59,18 @@ describe("serializers", () => {
     expect(md).toContain("# Governance Report");
     expect(md).toContain("| a | strategy | approved |");
   });
+
+  it("stamps a deterministic id from options.now", () => {
+    expect(report.id).toBe("SDM_GOV_20260603T000000Z");
+    expect(report.timestamp).toBe(NOW);
+  });
+
+  it("reportToMarkdown lists orphans when present", () => {
+    const orphanReport = buildGovernanceReport(
+      [makeDoc({ thing_id: "lonely", relations: { depends_on: [], enables: [], related_to: [] } })],
+      { now: NOW, scanErrors: [] },
+    );
+    expect(orphanReport.orphans).toContain("lonely");
+    expect(reportToMarkdown(orphanReport)).toContain("## Orphans");
+  });
 });
